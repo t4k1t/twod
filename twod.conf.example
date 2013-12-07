@@ -1,0 +1,21 @@
+# An example configuration file for twod.
+# See the twod.conf man page for a more detailed description of each parameter.
+
+[general]
+# twodns username
+user = username
+
+# twodns password
+password = password
+
+# update url in the form https://api.twodns.de/hosts/<your host>
+# e.g. https://api.twodns.de/hosts/awesomehost.dd-dns.de
+url = update-url
+
+# update interval - check if IP has changed every x seconds
+interval = 3600
+
+
+[logging]
+# log level
+level = WARN
