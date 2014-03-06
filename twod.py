@@ -171,15 +171,6 @@ class Twod:
                     'stream': 'ext://sys.stdout',
                     'level': 'DEBUG',
                 },
-                'debuglog': {
-                    'formatter': 'daemon',
-                    'class': 'logging.handlers.RotatingFileHandler',
-                    'level': 'DEBUG',
-                    'filename': '/var/log/twod/twod.log',
-                    'maxBytes': '16384',
-                    'backupCount': '1',
-                    'encoding': 'utf8'
-                }
             },
             'loggers': {
                 'twod': {
