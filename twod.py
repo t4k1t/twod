@@ -39,16 +39,19 @@ class _Data:
         self.log = logging.getLogger('twod')
         self.ident = (conf['user'], conf['password'])
         self.url = conf['url']
+        self.ip_url = conf['ip_url']
         self.rec_ip = self.get_rec_ip()
 
     def get_ext_ip(self):
+        # TODO: Make ip_url a list of possible ip providers and implement
+        # methods to dynamically switch between providers.
         """Get external IP.
         Returns external IP as string. Returns False on failure.
 
         """
         self.log.debug("Fetching external ip...")
         try:
-            ip_request = get('https://icanhazip.com', verify=True, timeout=16)
+            ip_request = get(self.ip_url, verify=True, timeout=16)
             ip_request.raise_for_status()
         except exceptions.ConnectionError as e:
             message = "Connection error while fetching external IP: %s" % e
@@ -202,6 +205,7 @@ class Twod:
             conf['password'] = config.get('general', 'password')
             conf['url'] = config.get('general', 'url')
             conf['interval'] = config.getint('general', 'interval')
+            conf['ip_url'] = config.get('ip_service', 'url')
             conf['loglevel'] = config.get('logging', 'level')
         except NoSectionError as e:
             message = "Configuration error: %s" % e
@@ -227,6 +231,7 @@ class Twod:
             sleep(self.interval)
 
 
+# TODO: Add command line paramater to manually select config file.
 def main():
     twod = Twod()
     twod.run()

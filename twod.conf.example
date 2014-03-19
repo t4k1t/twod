@@ -15,6 +15,12 @@ url = update-url
 # update interval - check if IP has changed every x seconds
 interval = 3600
 
+[ip_service]
+url = https://icanhazip.com
+;url = https://ipinfo.io/ip
+;url = http://ifconfig.me/ip
+;url = http://ipecho.net/plain
+
 
 [logging]
 # log level
