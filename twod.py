@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 
 """twod
 
@@ -23,13 +23,43 @@ along with this program.  If not, see [http://www.gnu.org/licenses/].
 
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 from json import dumps, loads
+import lockfile
 import logging.handlers
 import logging.config
+from optparse import OptionParser
 from os import path
+from random import randint 
+from re import match
 from time import sleep
 
 from daemon import DaemonContext
 from requests import get, put, exceptions
+
+
+class _ServiceGenerator:
+    """Select service URL depending on mode."""
+
+    def __init__(self, services):
+        self.services = services
+        self.cur = 0
+
+    def __iter__(self):
+        return self
+
+    def next(self, mode):
+        if mode == 'round_robin':
+            if self.cur < len(self.services):
+                service = self.services[self.cur]
+                self.cur = self.cur + 1
+                return service
+            else:
+                self.cur = 0
+                service = self.services[self.cur]
+                return service
+        elif mode == 'random':
+            self.cur = randint(0, (len(self.services) - 1))
+            service = self.services[self.cur]
+            return service
 
 
 class _Data:
@@ -39,19 +69,23 @@ class _Data:
         self.log = logging.getLogger('twod')
         self.ident = (conf['user'], conf['password'])
         self.url = conf['url']
-        self.ip_url = conf['ip_url']
-        self.rec_ip = self.get_rec_ip()
+        self.ip_mode = conf['ip_mode']
+        ip_url = conf['ip_url'].split(' ')
+        self.gen = _ServiceGenerator(ip_url)
+        self.rec_ip = self._get_rec_ip()
 
-    def get_ext_ip(self):
-        # TODO: Make ip_url a list of possible ip providers and implement
-        # methods to dynamically switch between providers.
+    def _get_service_url(self):
+        return self.gen.next(self.ip_mode)
+
+    def _get_ext_ip(self):
         """Get external IP.
-        Returns external IP as string. Returns False on failure.
+        Returns external IP as string.
+        Returns False on failure.
 
         """
         self.log.debug("Fetching external ip...")
         try:
-            ip_request = get(self.ip_url, verify=True, timeout=16)
+            ip_request = get(self._get_service_url(), verify=True, timeout=16)
             ip_request.raise_for_status()
         except exceptions.ConnectionError as e:
             message = "Connection error while fetching external IP: %s" % e
@@ -69,7 +103,7 @@ class _Data:
             ip = ip_request.text.rstrip()
             return ip
 
-    def get_rec_ip(self):
+    def _get_rec_ip(self):
         """Get IP stored by twodns.
         Returns IP as string. Returns False on failure.
 
@@ -96,24 +130,24 @@ class _Data:
             ip = rec_json['ip_address']
             return ip
 
-    def check_ip(self):
+    def _check_ip(self):
         """Check if external IP matches recorded IP.
         Returns external IP as string if IPs differ. Returns False if the IPs
         match or an error occured.
 
         """
         self.log.debug("Checking if recorded IP matches current IP...")
-        ext_ip = self.get_ext_ip()
+        ext_ip = self._get_ext_ip()
         if not ext_ip:
             return False
         rec_ip = self.rec_ip
         if ext_ip == rec_ip:
-            self.log.debug("IP hasn't changed.")
+            self.log.debug("IP has not changed.")
             return False
         else:
             return ext_ip
 
-    def update_ip(self, new_ip):
+    def _update_ip(self, new_ip):
         """Update IP stored at twodns."""
         self.log.debug("Updating recorded IP...")
         try:
@@ -145,14 +179,28 @@ class _Data:
 
 
 class Twod:
-    def __init__(self):
+    """Twod class."""
+
+    def __init__(self, config):
         self._setup_logger()
-        conf = self._read_config()
+        conf = self._read_config(config)
         self._setup_logger(conf['loglevel'])
         self.interval = conf['interval']
         self.data = _Data(conf)
 
+    def _is_url(self, url):
+        if not match(r'http(s)?://', url):
+            raise ValueError("Invalid URL: '%s'" % url)
+        return url
+
+    def _is_mode(self, mode):
+        if not match(r'(random)|(round_robin)', mode):
+            raise ValueError("Invalid mode: '%s'" % mode)
+        return mode
+
     def _setup_logger(self, level='WARN'):
+        """Setup logging."""
+
         logging.config.dictConfig({
             'version': 1,
             'disable_existing_loggers': False,
@@ -166,7 +214,7 @@ class Twod:
                     'formatter': 'daemon',
                     'class': 'logging.handlers.SysLogHandler',
                     'address': '/dev/log',
-                    'level': 'WARN',
+                    'level': 'DEBUG',
                 },
                 'stderr': {
                     'formatter': 'daemon',
@@ -185,11 +233,12 @@ class Twod:
         })
         self.log = logging.getLogger('twod')
 
-    def _read_config(self, custom=False):
+    def _read_config(self, custom):
         """Read config.
         Exit on invalid config.
 
         """
+
         self.log.debug("Reading config...")
         conf = {}
         config = SafeConfigParser()
@@ -197,21 +246,26 @@ class Twod:
             config.read([path.expanduser(custom)])
         else:
             config.read([
-                '/etc/twod/twod.conf',
-                path.expanduser('~/.twod/twod.conf'),
-                path.expanduser('~/.config/twod/twod.conf')])
+                '/etc/twod/twodrc',
+                path.expanduser('~/.config/twod/twodrc'),
+            ])
         try:
             conf['user'] = config.get('general', 'user')
             conf['password'] = config.get('general', 'password')
-            conf['url'] = config.get('general', 'url')
+            conf['url'] = self._is_url(config.get('general', 'url'))
             conf['interval'] = config.getint('general', 'interval')
-            conf['ip_url'] = config.get('ip_service', 'url')
+            conf['ip_mode'] = self._is_mode(config.get('ip_service', 'mode'))
+            conf['ip_url'] = self._is_url(config.get('ip_service', 'urls'))
             conf['loglevel'] = config.get('logging', 'level')
         except NoSectionError as e:
             message = "Configuration error: %s" % e
             self.log.critical(message)
             exit(1)
         except NoOptionError as e:
+            message = "Configuration error: %s" % e
+            self.log.critical(message)
+            exit(1)
+        except ValueError as e:
             message = "Configuration error: %s" % e
             self.log.critical(message)
             exit(1)
@@ -225,15 +279,24 @@ class Twod:
         """Main loop."""
         data = self.data
         while(True):
-            changed_ip = data.check_ip()
+            changed_ip = data._check_ip()
             if changed_ip:
-                data.update_ip(changed_ip)
+                data._update_ip(changed_ip)
             sleep(self.interval)
 
 
-# TODO: Add command line paramater to manually select config file.
 def main():
-    twod = Twod()
+    parser = OptionParser()
+    parser.add_option('-c', '--config', dest='config',
+                      help="load configuration from FILE", metavar='FILE')
+    (options, args) = parser.parse_args()
+    config = options.config
+
+    if config and not path.isfile(path.expanduser(config)):
+        parser.error("'%s' is not a file" % config)
+        exit(1)
+
+    twod = Twod(config)
     twod.run()
 
 
