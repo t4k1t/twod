@@ -1,0 +1,66 @@
+.\" Manpage for twodrc.
+.\" Contact tablet-mode@monochromatic.cc to correct errors or typos.
+.TH twodrc 5 "19 March 2014" "twod 0.2.0" "twod man page"
+.SH NAME
+twodrc - twod daemon configuration files
+.SH SYNOPSIS
+.BR ~/.config/twod/twodrc
+.br
+.BR /etc/twod/twodrc
+.SH DESCRIPTION
+twod(1) looks for configuration data in the following places in the following
+order:
+.IP
+2.  user's configuration file (~/.config/twod/twodrc)
+.br
+3.  system-wide configuration file (/etc/twod/twodrc)
+.SH CONFIGURATION VARIABLES
+Valid configuration variables:
+.SS "GENERAL SECTION"
+.TP
+.B "user"
+.br
+Name of the twodns.de account.
+.br
+.TP
+.B "password"
+.br
+Password of the twodns.de account.
+.br
+.TP
+.B "url"
+.br
+URL of the twodns.de host.
+.br
+.TP
+.B interval
+.br
+Update interval in seconds.
+.SS "IP_SERVICE SECTION"
+.TP
+.B "mode"
+.br
+Sets the method of selecting the URL used to retrieve current external IP.
+.br
+Possible values:
+.P 
+            random        Selects a random URL from list.
+.br
+            round_robin   Cycles through URLs in sequence.
+.TP
+.B "urls"
+.br
+List of URLs used to query external IP.
+.SS "LOGGING SECTION"
+.TP
+.B "level"
+.br
+Log level.
+.SH SEE ALSO
+twod(1)
+.SH FILES
+~/.config/twod/twodrc
+.br
+/etc/twod/twodrc
+.SH AUTHOR
+Tablet Mode <tablet-mode@monochromatic.cc>
