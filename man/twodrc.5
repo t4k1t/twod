@@ -2,18 +2,13 @@
 .\" Contact tablet-mode@monochromatic.cc to correct errors or typos.
 .TH twodrc 5 "19 March 2014" "twod 0.2.0" "twod man page"
 .SH NAME
-twodrc - twod daemon configuration files
+\fBtwodrc\fR - \fBtwod\fR twodns.de host updater daemon configuration files
 .SH SYNOPSIS
-.BR ~/.config/twod/twodrc
-.br
 .BR /etc/twod/twodrc
 .SH DESCRIPTION
-twod(1) looks for configuration data in the following places in the following
-order:
+twod(8) looks for configuration data in the following path:
 .IP
-2.  user's configuration file (~/.config/twod/twodrc)
-.br
-3.  system-wide configuration file (/etc/twod/twodrc)
+/etc/twod/twodrc
 .SH CONFIGURATION VARIABLES
 Valid configuration variables:
 .SS "GENERAL SECTION"
@@ -43,7 +38,7 @@ Update interval in seconds.
 Sets the method of selecting the URL used to retrieve current external IP.
 .br
 Possible values:
-.P 
+.P
             random        Selects a random URL from list.
 .br
             round_robin   Cycles through URLs in sequence.
@@ -57,10 +52,11 @@ List of URLs used to query external IP.
 .br
 Log level.
 .SH SEE ALSO
-twod(1)
+twod(8)
 .SH FILES
-~/.config/twod/twodrc
-.br
 /etc/twod/twodrc
+       Contains configuration data for twod(8). This file should be writable
+       by root only, but it is recommended (though not necessary) that it be
+       world-readable.
 .SH AUTHOR
 Tablet Mode <tablet-mode@monochromatic.cc>

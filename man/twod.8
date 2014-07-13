@@ -1,0 +1,26 @@
+.\" Manpage for twod.
+.\" Contact tablet-mode@monochromatic.cc to correct errors or typos.
+.TH twod 8 "19 March 2014" "twod 0.2.0" "twod man page"
+.SH NAME
+\fBtwod\fR - update twodns.de hosts
+.SH SYNOPSIS
+\fBtwod\fR [options]
+.SH DESCRIPTION
+\fBtwod\fR is a daemon for updating twodns.de hosts.
+.SH OPTIONS
+.TP
+.B "--config (-c)"
+Specifies the name of the configuration file. The default is /etc/twod/twodrc.
+.SH FILES
+/etc/twod/twodrc
+       Contains configuration data for \fBtwod\fR. The file format and configuration
+       options are described in twodrc(5).
+
+/var/run/twod.pid
+       Contains the process ID of \fBtwod\fR.
+.SH SEE ALSO
+twodrc(5)
+.SH BUGS
+No known bugs.
+.SH AUTHOR
+Tablet Mode <tablet-mode@monochromatic.cc>

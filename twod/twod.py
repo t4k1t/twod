@@ -4,7 +4,7 @@
 
 twod is a client for the twodns.de dynamic dns service.
 
-Copyright (C) 2013 Tablet Mode <tablet-mode AT monochromatic DOT cc>
+Copyright (C) 2014 Tablet Mode <tablet-mode AT monochromatic DOT cc>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,20 +23,22 @@ along with this program.  If not, see [http://www.gnu.org/licenses/].
 
 from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
 from json import dumps, loads
-import lockfile
 import logging.handlers
 import logging.config
 from optparse import OptionParser
 from os import path
-from random import randint 
+from random import randint
 from re import match
 from time import sleep
 
 from daemon import DaemonContext
 from requests import get, put, exceptions
 
+from lockfile.pidlockfile import PIDLockFile
+
 
 class _ServiceGenerator:
+
     """Select service URL depending on mode."""
 
     def __init__(self, services):
@@ -63,6 +65,7 @@ class _ServiceGenerator:
 
 
 class _Data:
+
     """Do pretty much everything."""
 
     def __init__(self, conf):
@@ -79,6 +82,7 @@ class _Data:
 
     def _get_ext_ip(self):
         """Get external IP.
+
         Returns external IP as string.
         Returns False on failure.
 
@@ -105,6 +109,7 @@ class _Data:
 
     def _get_rec_ip(self):
         """Get IP stored by twodns.
+
         Returns IP as string. Returns False on failure.
 
         """
@@ -132,6 +137,7 @@ class _Data:
 
     def _check_ip(self):
         """Check if external IP matches recorded IP.
+
         Returns external IP as string if IPs differ. Returns False if the IPs
         match or an error occured.
 
@@ -179,9 +185,17 @@ class _Data:
 
 
 class Twod:
+
     """Twod class."""
 
     def __init__(self, config):
+        """Initialisation.
+
+        * Setup logging
+        * Read configuration
+        * Initialise Data class
+
+        """
         self._setup_logger()
         conf = self._read_config(config)
         self._setup_logger(conf['loglevel'])
@@ -200,13 +214,13 @@ class Twod:
 
     def _setup_logger(self, level='WARN'):
         """Setup logging."""
-
         logging.config.dictConfig({
             'version': 1,
             'disable_existing_loggers': False,
             'formatters': {
                 'daemon': {
-                    'format': '%(asctime)s %(module)s[%(process)d]: %(message)s'
+                    'format': '%(asctime)s %(module)s[%(process)d]: '
+                              '%(message)s'
                 },
             },
             'handlers': {
@@ -235,10 +249,10 @@ class Twod:
 
     def _read_config(self, custom):
         """Read config.
+
         Exit on invalid config.
 
         """
-
         self.log.debug("Reading config...")
         conf = {}
         config = SafeConfigParser()
@@ -247,7 +261,6 @@ class Twod:
         else:
             config.read([
                 '/etc/twod/twodrc',
-                path.expanduser('~/.config/twod/twodrc'),
             ])
         try:
             conf['user'] = config.get('general', 'user')
@@ -286,6 +299,7 @@ class Twod:
 
 
 def main():
+    """Main function."""
     parser = OptionParser()
     parser.add_option('-c', '--config', dest='config',
                       help="load configuration from FILE", metavar='FILE')
@@ -296,10 +310,10 @@ def main():
         parser.error("'%s' is not a file" % config)
         exit(1)
 
-    twod = Twod(config)
-    twod.run()
+    with DaemonContext(pidfile=PIDLockFile('/var/run/twod.pid')):
+        twod = Twod(config)
+        twod.run()
 
 
 if __name__ == '__main__':
-    with DaemonContext():
-        main()
+    main()

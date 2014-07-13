@@ -23,7 +23,7 @@ mode = random
 # List of URLs to get external ip from.
 # Which of these URLs will actually be queried depends on the `mode` setting.
 urls = https://icanhazip.com https://ipinfo.io/ip
-# Some more URLs you can use if you don't mind not using SSL (not recommended)
+# Some more URLs you can use if you don't mind not using SSL
 ;url = https://icanhazip.com https://ipinfo.io/ip http://ifconfig.me/ip
 ;       http://ipecho.net/plain
 
