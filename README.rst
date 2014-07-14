@@ -2,7 +2,7 @@
 twod
 ====
 
-``twod`` is a daemon that updates your twodns_ entries.
+``twod`` is a daemon that updates your TwoDNS_ entries.
 
 
 dependencies
@@ -24,17 +24,17 @@ the ``-c`` parameter.
 Example config::
 
     [general]
-    user = username@example.com
+    user     = username@example.com
     password = password
     interval = 3600
-    url = https://api.twodns.de/hosts/myexamplehost
+    host_url = https://api.twodns.de/hosts/myexamplehost
     
     [ip_service]
-    mode = random
-    urls = https://icanhazip.com https://ipinfo.io/ip
+    mode     = random
+    ip_urls  = https://icanhazip.com https://ipinfo.io/ip
 
     [logging]
-    level = WARN
+    level    = WARN
 
 
 usage
@@ -53,5 +53,5 @@ To run daemon manually:
     $ python2 <path/to/twod.py>
 
 
-.. _twodns: https://www.twodns.de
+.. _TwoDNS: https://www.twodns.de
 .. _my_little_overlay: https://github.com/twisted-pear/my-little-overlay

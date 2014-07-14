@@ -21,7 +21,8 @@ along with this program.  If not, see [http://www.gnu.org/licenses/].
 
 """
 
-from ConfigParser import SafeConfigParser, NoSectionError, NoOptionError
+from ConfigParser import (SafeConfigParser, MissingSectionHeaderError,
+                          NoSectionError, NoOptionError)
 from json import dumps, loads
 import logging.handlers
 import logging.config
@@ -76,6 +77,7 @@ class _Data:
         ip_url = conf['ip_url'].split(' ')
         self.gen = _ServiceGenerator(ip_url)
         self.rec_ip = self._get_rec_ip()
+        self.log.debug("Moving to background...")
 
     def _get_service_url(self):
         return self.gen.next(self.ip_mode)
@@ -256,29 +258,22 @@ class Twod:
         self.log.debug("Reading config...")
         conf = {}
         config = SafeConfigParser()
-        if custom:
-            config.read([path.expanduser(custom)])
-        else:
-            config.read([
-                '/etc/twod/twodrc',
-            ])
         try:
+            if custom:
+                config.read([path.expanduser(custom)])
+            else:
+                config.read([
+                    '/etc/twod/twodrc',
+                ])
             conf['user'] = config.get('general', 'user')
             conf['password'] = config.get('general', 'password')
-            conf['url'] = self._is_url(config.get('general', 'url'))
+            conf['url'] = self._is_url(config.get('general', 'host_url'))
             conf['interval'] = config.getint('general', 'interval')
             conf['ip_mode'] = self._is_mode(config.get('ip_service', 'mode'))
-            conf['ip_url'] = self._is_url(config.get('ip_service', 'urls'))
+            conf['ip_url'] = self._is_url(config.get('ip_service', 'ip_urls'))
             conf['loglevel'] = config.get('logging', 'level')
-        except NoSectionError as e:
-            message = "Configuration error: %s" % e
-            self.log.critical(message)
-            exit(1)
-        except NoOptionError as e:
-            message = "Configuration error: %s" % e
-            self.log.critical(message)
-            exit(1)
-        except ValueError as e:
+        except (MissingSectionHeaderError, NoSectionError, NoOptionError,
+                ValueError) as e:
             message = "Configuration error: %s" % e
             self.log.critical(message)
             exit(1)
@@ -310,8 +305,8 @@ def main():
         parser.error("'%s' is not a file" % config)
         exit(1)
 
+    twod = Twod(config)
     with DaemonContext(pidfile=PIDLockFile('/var/run/twod.pid')):
-        twod = Twod(config)
         twod.run()
 
 
