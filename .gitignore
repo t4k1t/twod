@@ -1,6 +1,14 @@
+# python
 __pycache__
 *.pyc
 build
 dist
 *.egg-info
+
+# testing
+_coverage
 .coverage
+.tox/*
+
+# documentation
+docs/_build/*
