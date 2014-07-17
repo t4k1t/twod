@@ -235,7 +235,7 @@ class Twod:
                 'stderr': {
                     'formatter': 'daemon',
                     'class': 'logging.StreamHandler',
-                    'stream': 'ext://sys.stdout',
+                    'stream': 'ext://sys.stderr',
                     'level': 'DEBUG',
                 },
             },
