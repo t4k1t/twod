@@ -21,20 +21,10 @@ you can tell ``twod`` to use a specified configuration file instead by using
 the ``-c`` parameter. 
 
 
-Example config::
+Example config:
 
-    [general]
-    user     = username@example.com
-    password = password
-    interval = 3600
-    host_url = https://api.twodns.de/hosts/myexamplehost
-    
-    [ip_service]
-    mode     = random
-    ip_urls  = https://icanhazip.com https://ipinfo.io/ip
-
-    [logging]
-    level    = WARN
+.. literalinclude:: docs/examples/twodrc.example
+   :language: ini
 
 
 usage
