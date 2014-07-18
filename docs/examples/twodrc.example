@@ -1,0 +1,33 @@
+# An example configuration file for twod.
+# See the twod.conf man page for a more detailed description of each parameter.
+
+[general]
+# TwoDNS username
+user = my-user@example.com
+
+# TwoDNS password
+password = my-password
+
+# Update URL in the form https://api.twodns.de/hosts/<your-host>
+# e.g. https://api.twodns.de/hosts/awesomehost.dd-dns.de
+host_url = https://api.twodns.de/hosts/my-example-host.dd-dns.de
+
+# Update interval - Check if IP has changed every x seconds.
+interval = 3600
+
+[ip_service]
+# Method of selecting url to get external IP.
+# Possible values are `round_robin` or `random`.
+mode = random
+
+# List of URLs to get external ip from.
+# Which of these URLs will actually be queried depends on the `mode` setting.
+ip_urls = https://icanhazip.com https://ipinfo.io/ip
+# Some more URLs you can use if you don't mind not using SSL
+;ip_urls = https://icanhazip.com https://ipinfo.io/ip http://ifconfig.me/ip
+;       http://ipecho.net/plain
+
+
+[logging]
+# Log level. Possible values: DEBUG | INFO | WARN | ERROR | CRITICAL
+level = WARN
