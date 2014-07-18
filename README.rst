@@ -53,5 +53,15 @@ To run daemon manually:
     $ python2 <path/to/twod.py>
 
 
+documentation
+=============
+
+You can find detailed documentation at
+`twod's Read the Docs page <https://twod.readthedocs.org/en/latest/>`_,
+powered by Sphinx_.
+
+
+
 .. _TwoDNS: https://www.twodns.de
 .. _my_little_overlay: https://github.com/twisted-pear/my-little-overlay
+.. _Sphinx: http://sphinx-doc.org
