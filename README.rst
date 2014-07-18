@@ -23,7 +23,8 @@ the ``-c`` parameter.
 
 Example config:
 
-.. literalinclude:: docs/examples/twodrc.example
+.. include:: docs/examples/twodrc.example
+   :literal:
    :language: ini
 
 
