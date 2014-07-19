@@ -6,7 +6,7 @@ Getting started
 Configuration
 -------------
 
-``twod`` will look for a configuration file in ``/etc/twod/twod.conf``. Optionally
+``twod`` will look for a configuration file in ``/etc/twod/twodrc``. Optionally
 you can tell ``twod`` to use a specified configuration file instead by using
 the ``-c`` parameter. 
 
