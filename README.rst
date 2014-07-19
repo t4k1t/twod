@@ -2,7 +2,7 @@
 twod
 ====
 
-``twod`` is a daemon that updates your TwoDNS_ entries.
+``twod`` is a daemon that updates your TwoDNS_ host IP entries.
 
 
 dependencies

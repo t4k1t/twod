@@ -49,7 +49,7 @@ copyright = '2014, Tablet Mode'
 # built documents.
 #
 # The short X.Y version.
-version = '0.3.0'
+version = '0.3'
 # The full version, including alpha/beta/rc tags.
 release = '0.3.0'
 

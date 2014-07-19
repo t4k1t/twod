@@ -1,8 +1,8 @@
 #!/usr/bin/env python2
 
-"""twod
+"""twod TwoDNS host IP updater daemon.
 
-twod is a client for the twodns.de dynamic dns service.
+twod is a client for the TwoDNS dynamic DNS service.
 
 Copyright (C) 2014 Tablet Mode <tablet-mode AT monochromatic DOT cc>
 
@@ -21,12 +21,14 @@ along with this program.  If not, see [http://www.gnu.org/licenses/].
 
 """
 
+import logging.handlers
+import logging.config
+
+from argparse import ArgumentParser
 from ConfigParser import (SafeConfigParser, MissingSectionHeaderError,
                           NoSectionError, NoOptionError)
 from json import dumps, loads
-import logging.handlers
-import logging.config
-from optparse import OptionParser
+from lockfile.pidlockfile import PIDLockFile
 from os import path
 from random import randint
 from re import match
@@ -35,8 +37,6 @@ from time import sleep
 from daemon import DaemonContext
 from requests import get, put, exceptions
 
-from lockfile.pidlockfile import PIDLockFile
-
 
 class _ServiceGenerator:
 
@@ -44,21 +44,20 @@ class _ServiceGenerator:
 
     def __init__(self, services):
         self.services = services
-        self.cur = 0
+        self.cur = -1
 
     def __iter__(self):
         return self
 
     def next(self, mode):
+        self.cur = self.cur + 1
         if mode == 'round_robin':
             if self.cur < len(self.services):
                 service = self.services[self.cur]
-                self.cur = self.cur + 1
-                return service
             else:
                 self.cur = 0
                 service = self.services[self.cur]
-                return service
+            return service
         elif mode == 'random':
             self.cur = randint(0, (len(self.services) - 1))
             service = self.services[self.cur]
@@ -67,7 +66,7 @@ class _ServiceGenerator:
 
 class _Data:
 
-    """Do pretty much everything."""
+    """This is where the fun begins."""
 
     def __init__(self, conf):
         self.log = logging.getLogger('twod')
@@ -77,7 +76,6 @@ class _Data:
         ip_url = conf['ip_url'].split(' ')
         self.gen = _ServiceGenerator(ip_url)
         self.rec_ip = self._get_rec_ip()
-        self.log.debug("Moving to background...")
 
     def _get_service_url(self):
         return self.gen.next(self.ip_mode)
@@ -103,8 +101,8 @@ class _Data:
             return False
         except Exception as e:
             message = "Unexpected error while fetching external IP: %s" % e
-            self.log.error(message)
-            return False
+            self.log.critical(message)
+            raise
         else:
             ip = ip_request.text.rstrip()
             return ip
@@ -130,8 +128,8 @@ class _Data:
             return False
         except Exception as e:
             message = "Unexpected error while fetching IP from twodns: %s" % e
-            self.log.error(message)
-            return False
+            self.log.critical(message)
+            raise
         else:
             rec_json = loads(rec_request.text)
             ip = rec_json['ip_address']
@@ -146,8 +144,11 @@ class _Data:
         """
         self.log.debug("Checking if recorded IP matches current IP...")
         ext_ip = self._get_ext_ip()
+        # something went wrong while fetching external IP but it's possible to
+        # continue
         if not ext_ip:
             return False
+
         rec_ip = self.rec_ip
         if ext_ip == rec_ip:
             self.log.debug("IP has not changed.")
@@ -173,8 +174,8 @@ class _Data:
             return False
         except Exception as e:
             message = "Unexpected error while updating IP: %s" % e
-            self.log.error(message)
-            return False
+            self.log.critical(message)
+            raise
         else:
             if(r.status_code == 200):
                 message = "IP changed to %s." % new_ip
@@ -202,7 +203,7 @@ class Twod:
         conf = self._read_config(config)
         self._setup_logger(conf['loglevel'])
         self.interval = conf['interval']
-        self.data = _Data(conf)
+        self.conf = conf
 
     def _is_url(self, url):
         if not match(r'http(s)?://', url):
@@ -285,7 +286,7 @@ class Twod:
 
     def run(self):
         """Main loop."""
-        data = self.data
+        data = _Data(self.conf)
         while(True):
             changed_ip = data._check_ip()
             if changed_ip:
@@ -295,19 +296,25 @@ class Twod:
 
 def main():
     """Main function."""
-    parser = OptionParser()
-    parser.add_option('-c', '--config', dest='config',
-                      help="load configuration from FILE", metavar='FILE')
-    (options, args) = parser.parse_args()
-    config = options.config
+    parser = ArgumentParser()
+    parser.add_argument('-c', '--config', metavar='FILE',
+                        help="load configuration from FILE")
+    parser.add_argument('-D', '--no-detach', dest='nodetach',
+                        action='store_true', help="do not detach from console")
+    parser.add_argument('-V', '--version', action='version',
+                        version='%(prog)s 0.3.0')
+    args = parser.parse_args()
 
-    if config and not path.isfile(path.expanduser(config)):
-        parser.error("'%s' is not a file" % config)
-        exit(1)
+    if args.config and not path.isfile(path.expanduser(args.config)):
+        parser.error("'%s' is not a file" % args.config)
 
-    twod = Twod(config)
-    with DaemonContext(pidfile=PIDLockFile('/var/run/twod.pid')):
+    twod = Twod(args.config)
+    if args.nodetach:
         twod.run()
+    else:
+        twod.log.debug("Moving to background...")
+        with DaemonContext(pidfile=PIDLockFile('/var/run/twod.pid')):
+            twod.run()
 
 
 if __name__ == '__main__':
