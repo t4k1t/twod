@@ -18,7 +18,7 @@ configuration
 
 ``twod`` will look for a configuration file in ``/etc/twod/twodrc``. Optionally
 you can tell ``twod`` to use a specified configuration file instead by using
-the ``-c`` parameter. 
+the ``-c`` parameter.
 
 
 Example config::
@@ -28,7 +28,7 @@ Example config::
     password = password
     interval = 3600
     host_url = https://api.twodns.de/hosts/myexamplehost
-    
+
     [ip_service]
     mode     = random
     ip_urls  = https://icanhazip.com https://ipinfo.io/ip
@@ -49,7 +49,7 @@ you can control ``twod`` like any other service:
     $ /etc/init.d/twod start
 
 To run daemon manually:
-    
+
     $ python2 <path/to/twod.py>
 
 
