@@ -10,11 +10,11 @@ inherit distutils-r1
 
 DESCRIPTION="Updater daemon for TwoDNS"
 HOMEPAGE="https://github.com/tablet-mode/twod"
-SRC_URI="https://github.com/tablet-mode/twod/archive/0.3.0.tar.gz"
+SRC_URI="https://github.com/tablet-mode/twod/tarball/${PV} -> ${P}.tar.gz"
 
 LICENSE="GPLv3"
 SLOT="0"
-KEYWORDS="~i386 ~amd64"
+KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 DEPEND="dev-python/setuptools[${PYTHON_USEDEP}]"
