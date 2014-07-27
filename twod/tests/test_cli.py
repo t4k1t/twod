@@ -48,7 +48,8 @@ class TestCLI:
     def test_no_detach(self, mock_sleep, mock_get, mock_data, mock_daemon,
                        capsys, caplog, monkeypatch, valid_config_path):
         """Test --no-detach argument."""
-        monkeypatch.setattr('sys.argv', ['twod.py', '-D'])
+        monkeypatch.setattr('sys.argv', ['twod.py', '-D', '-c',
+                            valid_config_path])
         MyMock = mock.Mock(text=u'{"ip_address": "127.0.0.1"}')
         mock_get.return_value = MyMock
 
