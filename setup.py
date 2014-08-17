@@ -15,7 +15,7 @@ with codecs.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
 setup(
     name="twod",
 
-    version='0.3.0',
+    version='0.4.0-dev',
 
     description="twod TwoDNS host IP updater",
     long_description=long_description,
