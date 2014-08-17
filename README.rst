@@ -20,7 +20,6 @@ configuration
 you can tell ``twod`` to use a specified configuration file instead by using
 the ``-c`` parameter.
 
-
 Example config::
 
     [general]
@@ -37,20 +36,28 @@ Example config::
     level    = WARN
 
 
-usage
-=====
+installation
+============
 
 Gentoo GNU/Linux
 ^^^^^^^^^^^^^^^^
 
-Get the twod ebuild from the my_little_overlay_ overlay. After installing it
-you can control ``twod`` like any other service:
+1. Install ``twod`` with the ebuild supplied in the ``gentoo/`` folder.
+
+2. Copy ``docs/example/twodrc.example`` to ``/etc/twod/twodrc`` and change the
+   settings according to your setup.
+
+
+usage
+=====
+
+After installing ``twod`` you can control it like any other service:
 
     $ /etc/init.d/twod start
 
-To run daemon manually:
+To run the daemon manually you can just call the ``twod`` binary:
 
-    $ python2 <path/to/twod.py>
+    $ twod
 
 
 documentation
