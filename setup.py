@@ -44,7 +44,10 @@ setup(
 
     packages=find_packages(exclude=["docs", "tests*"]),
 
-    install_requires=[],
+    install_requires=[
+        'python-daemon==1.5.5',
+        'requests==2.4.3',
+    ],
 
     package_data={},
 
