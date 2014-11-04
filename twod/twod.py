@@ -108,26 +108,26 @@ class _Data:
             return ip
 
     def _get_rec_ip(self):
-        """Get IP stored by twodns.
+        """Get IP stored by TwoDNS.
 
         Returns IP as string. Returns False on failure.
 
         """
-        self.log.debug("Fetching twodns ip...")
+        self.log.debug("Fetching TwoDNS ip...")
         try:
             rec_request = get(
                 self.url, auth=self.ident, verify=True, timeout=16)
             rec_request.raise_for_status()
         except exceptions.ConnectionError as e:
-            message = "Connection error while fetching IP from twodns: %s" % e
+            message = "Connection error while fetching IP from TwoDNS: %s" % e
             self.log.warning(message)
             return False
         except exceptions.HTTPError as e:
-            message = "HTTP error while fetching IP from twodns: %s" % e
+            message = "HTTP error while fetching IP from TwoDNS: %s" % e
             self.log.warning(message)
             return False
         except Exception as e:
-            message = "Unexpected error while fetching IP from twodns: %s" % e
+            message = "Unexpected error while fetching IP from TwoDNS: %s" % e
             self.log.critical(message)
             raise
         else:
@@ -157,7 +157,7 @@ class _Data:
             return ext_ip
 
     def _update_ip(self, new_ip):
-        """Update IP stored at twodns."""
+        """Update IP stored at TwoDNS."""
         self.log.debug("Updating recorded IP...")
         try:
             payload = {"ip_address": new_ip}
