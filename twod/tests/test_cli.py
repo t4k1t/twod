@@ -4,6 +4,7 @@ import pytest
 import mock
 
 from twod.twod import main
+from twod._version import __version__
 
 
 class TestCLI:
@@ -63,4 +64,4 @@ class TestCLI:
         with pytest.raises(SystemExit):
             main()
         out, err = capsys.readouterr()
-        assert "twod.py 0.3.0" in err
+        assert "twod {}".format(__version__) in err

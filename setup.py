@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 
-""" Setup script for twod. """
+"""Setup script for twod."""
 
 from setuptools import setup, find_packages
 import codecs
@@ -12,10 +12,19 @@ here = os.path.abspath(os.path.dirname(__file__))
 with codecs.open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
+
+def get_version(fname='twod/_version.py'):
+    """Fetch version from file."""
+    with open(fname) as f:
+        for line in f:
+            if line.startswith('__version__'):
+                return eval(line.split('=')[-1])
+
+
 setup(
     name="twod",
 
-    version='0.4.0-dev',
+    version=get_version(),
 
     description="twod TwoDNS host IP updater",
     long_description=long_description,

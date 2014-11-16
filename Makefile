@@ -29,7 +29,10 @@ builddeb:
 clean:
 	$(PYTHON) setup.py clean
 	rm -rf build/ MANIFEST
-	find . -type f -name '*.pyc' -delete
+	find . -type f -name '*.py[cod]' -delete
+	find . -type d -name '__pycache__' -delete
+
 
 test:
 	tox
+	coverage html
