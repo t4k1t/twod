@@ -18,7 +18,7 @@ def get_version(fname='twod/_version.py'):
     with open(fname) as f:
         for line in f:
             if line.startswith('__version__'):
-                return eval(line.split('=')[-1])
+                return (line.split('=')[-1])
 
 
 setup(
