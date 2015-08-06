@@ -209,11 +209,12 @@ class Twod:
 
     def _is_url(self, url):
         if not match(r'http(s)?://', url):
-            raise ValueError("Invalid URL: '%s'" % url)
+            raise ValueError(
+                "Invalid URL: '%s' - has to start with 'http(s)'" % url)
         return url
 
     def _is_mode(self, mode):
-        if not match(r'(random)|(round_robin)', mode):
+        if mode not in ('random', 'round_robin'):
             raise ValueError("Invalid mode: '%s'" % mode)
         return mode
 
@@ -264,10 +265,10 @@ class Twod:
         try:
             # Check if config is even readable
             f = open(path.expanduser(config_path), 'r')
-            f.close()
 
             # Read config
-            config.read([path.expanduser(config_path)])
+            config.readfp(f)
+            f.close()
 
             conf['user'] = config.get('general', 'user')
             conf['password'] = config.get('general', 'password')
