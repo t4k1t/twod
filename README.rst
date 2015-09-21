@@ -42,7 +42,7 @@ installation
 Gentoo GNU/Linux
 ^^^^^^^^^^^^^^^^
 
-1. Install ``twod`` from `my fork <https://github.com/tablet-mode/my-little-overlay>`_ of my_little_overlay_
+1. Install ``twod`` from `my little overlay <https://github.com/twisted-pear/my-little-overlay>`_.
 
 2. Copy ``docs/example/twodrc.example`` to ``/etc/twod/twodrc`` and change the
    settings according to your setup.
