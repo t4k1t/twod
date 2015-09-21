@@ -37,6 +37,8 @@ from time import sleep
 from daemon import DaemonContext
 from requests import get, put, exceptions
 
+from _version import __version__
+
 
 class _ServiceGenerator:
 
@@ -108,26 +110,26 @@ class _Data:
             return ip
 
     def _get_rec_ip(self):
-        """Get IP stored by twodns.
+        """Get IP stored by TwoDNS.
 
         Returns IP as string. Returns False on failure.
 
         """
-        self.log.debug("Fetching twodns ip...")
+        self.log.debug("Fetching TwoDNS ip...")
         try:
             rec_request = get(
                 self.url, auth=self.ident, verify=True, timeout=16)
             rec_request.raise_for_status()
         except exceptions.ConnectionError as e:
-            message = "Connection error while fetching IP from twodns: %s" % e
+            message = "Connection error while fetching IP from TwoDNS: %s" % e
             self.log.warning(message)
             return False
         except exceptions.HTTPError as e:
-            message = "HTTP error while fetching IP from twodns: %s" % e
+            message = "HTTP error while fetching IP from TwoDNS: %s" % e
             self.log.warning(message)
             return False
         except Exception as e:
-            message = "Unexpected error while fetching IP from twodns: %s" % e
+            message = "Unexpected error while fetching IP from TwoDNS: %s" % e
             self.log.critical(message)
             raise
         else:
@@ -157,7 +159,7 @@ class _Data:
             return ext_ip
 
     def _update_ip(self, new_ip):
-        """Update IP stored at twodns."""
+        """Update IP stored at TwoDNS."""
         self.log.debug("Updating recorded IP...")
         try:
             payload = {"ip_address": new_ip}
@@ -191,7 +193,7 @@ class Twod:
 
     """Twod class."""
 
-    def __init__(self, config):
+    def __init__(self, config_path='/etc/twod/twodrc'):
         """Initialisation.
 
         * Setup logging
@@ -200,18 +202,19 @@ class Twod:
 
         """
         self._setup_logger()
-        conf = self._read_config(config)
+        conf = self._read_config(config_path)
         self._setup_logger(conf['loglevel'])
         self.interval = conf['interval']
         self.conf = conf
 
     def _is_url(self, url):
         if not match(r'http(s)?://', url):
-            raise ValueError("Invalid URL: '%s'" % url)
+            raise ValueError(
+                "Invalid URL: '%s' - has to start with 'http(s)'" % url)
         return url
 
     def _is_mode(self, mode):
-        if not match(r'(random)|(round_robin)', mode):
+        if mode not in ('random', 'round_robin'):
             raise ValueError("Invalid mode: '%s'" % mode)
         return mode
 
@@ -250,7 +253,7 @@ class Twod:
         })
         self.log = logging.getLogger('twod')
 
-    def _read_config(self, custom):
+    def _read_config(self, config_path):
         """Read config.
 
         Exit on invalid config.
@@ -260,12 +263,13 @@ class Twod:
         conf = {}
         config = SafeConfigParser()
         try:
-            if custom:
-                config.read([path.expanduser(custom)])
-            else:
-                config.read([
-                    '/etc/twod/twodrc',
-                ])
+            # Check if config is even readable
+            f = open(path.expanduser(config_path), 'r')
+
+            # Read config
+            config.readfp(f)
+            f.close()
+
             conf['user'] = config.get('general', 'user')
             conf['password'] = config.get('general', 'password')
             conf['url'] = self._is_url(config.get('general', 'host_url'))
@@ -274,7 +278,7 @@ class Twod:
             conf['ip_url'] = self._is_url(config.get('ip_service', 'ip_urls'))
             conf['loglevel'] = config.get('logging', 'level')
         except (MissingSectionHeaderError, NoSectionError, NoOptionError,
-                ValueError) as e:
+                ValueError, IOError) as e:
             message = "Configuration error: %s" % e
             self.log.critical(message)
             exit(1)
@@ -302,13 +306,13 @@ def main():
     parser.add_argument('-D', '--no-detach', dest='nodetach',
                         action='store_true', help="do not detach from console")
     parser.add_argument('-V', '--version', action='version',
-                        version='%(prog)s 0.3.0')
+                        version='twod ' + __version__)
     args = parser.parse_args()
 
     if args.config and not path.isfile(path.expanduser(args.config)):
         parser.error("'%s' is not a file" % args.config)
 
-    twod = Twod(args.config)
+    twod = Twod(args.config) if args.config else Twod()
     if args.nodetach:
         twod.run()
     else:

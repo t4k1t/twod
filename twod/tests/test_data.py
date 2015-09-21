@@ -28,8 +28,8 @@ class TestData:
 
         assert data._get_rec_ip() is False
         assert cls.interval == 9001
-        assert "Connection error while fetching IP from twodns" in (
-            caplog.text())
+        assert "connection error while fetching ip from twodns" in (
+            caplog.text().lower())
 
     @mock.patch('twod.twod.get')
     def test_get_ext_ip(self, mock_get, capsys, caplog,

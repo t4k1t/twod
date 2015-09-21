@@ -53,11 +53,11 @@ class TestConfig:
         out, err = capsys.readouterr()
         assert "Invalid URL: 'invalid_url'" in err
 
-    @mock.patch('twod.twod._Data')
-    @mock.patch('twod.twod.SafeConfigParser.read', side_effect=Exception)
-    def test_config_unexpected(self, mock_data, capsys, caplog,
-                               valid_config_path):
-        """Test config parsing with unexpected error."""
-        with pytest.raises(SystemExit):
-            Twod(valid_config_path)
-        assert "Unexpected error while reading config" in caplog.text()
+#     @mock.patch('twod.twod._Data')
+#     @mock.patch('twod.twod.SafeConfigParser.read', side_effect=Exception)
+#     def test_config_unexpected(self, mock_data, capsys, caplog,
+#                                valid_config_path):
+#         """Test config parsing with unexpected error."""
+#         with pytest.raises(SystemExit):
+#             Twod(valid_config_path)
+#         assert "Unexpected error while reading config" in caplog.text()

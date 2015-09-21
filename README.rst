@@ -42,7 +42,7 @@ installation
 Gentoo GNU/Linux
 ^^^^^^^^^^^^^^^^
 
-1. Install ``twod`` with the ebuild supplied in the ``gentoo/`` folder.
+1. Install ``twod`` from `my little overlay <https://github.com/twisted-pear/my-little-overlay>`_.
 
 2. Copy ``docs/example/twodrc.example`` to ``/etc/twod/twodrc`` and change the
    settings according to your setup.
