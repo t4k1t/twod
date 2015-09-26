@@ -93,12 +93,8 @@ class _Data:
         try:
             ip_request = get(self._get_service_url(), verify=True, timeout=16)
             ip_request.raise_for_status()
-        except exceptions.ConnectionError as e:
-            message = "Connection error while fetching external IP: %s" % e
-            self.log.warning(message)
-            return False
-        except exceptions.HTTPError as e:
-            message = "HTTP error while fetching external IP: %s" % e
+        except (exceptions.ConnectionError, exceptions.HTTPError) as e:
+            message = "Error while fetching external IP: %s" % e
             self.log.warning(message)
             return False
         except Exception as e:
@@ -120,12 +116,8 @@ class _Data:
             rec_request = get(
                 self.url, auth=self.ident, verify=True, timeout=16)
             rec_request.raise_for_status()
-        except exceptions.ConnectionError as e:
-            message = "Connection error while fetching IP from TwoDNS: %s" % e
-            self.log.warning(message)
-            return False
-        except exceptions.HTTPError as e:
-            message = "HTTP error while fetching IP from TwoDNS: %s" % e
+        except (exceptions.ConnectionError, exceptions.HTTPError) as e:
+            message = "Error while fetching IP from TwoDNS: %s" % e
             self.log.warning(message)
             return False
         except Exception as e:
@@ -166,12 +158,8 @@ class _Data:
             r = put(
                 self.url, auth=self.ident, data=dumps(payload), verify=True,
                 timeout=16)
-        except exceptions.ConnectionError as e:
-            message = "Connection error while updating IP: %s" % e
-            self.log.warning(message)
-            return False
-        except exceptions.HTTPError as e:
-            message = "HTTP error while updating IP: %s" % e
+        except (exceptions.ConnectionError, exceptions.HTTPError) as e:
+            message = "Error while updating IP: %s" % e
             self.log.warning(message)
             return False
         except Exception as e:
