@@ -17,7 +17,7 @@ Config format
 
    [general]
    user     = USERNAME
-   password = PASSWORD
+   token    = TOKEN
    host_url = DNS_HOST_URL
    interval = REFRESH_INTERVAL
    timeout  = HTTP_TIMEOUT
@@ -35,8 +35,8 @@ general section
 ``user``
    Username used to authenticate to TwoDNS.
 
-``password``
-   Password used to authenticate to TwoDNS.
+``token``
+   Token used to authenticate to TwoDNS.
 
 ``host_url``
    URL of your TwoDNS host.

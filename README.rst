@@ -24,9 +24,10 @@ Example config::
 
     [general]
     user     = username@example.com
-    password = password
-    interval = 3600
+    token    = token
     host_url = https://api.twodns.de/hosts/myexamplehost
+    interval = 3600
+    timeout  = 16
 
     [ip_service]
     mode     = random

@@ -72,7 +72,7 @@ class _Data:
 
     def __init__(self, conf):
         self.log = logging.getLogger('twod')
-        self.ident = (conf['user'], conf['password'])
+        self.ident = (conf['user'], conf['token'])
         self.url = conf['url']
         self.timeout = conf['timeout']
         self.ip_mode = conf['ip_mode']
@@ -261,7 +261,7 @@ class Twod:
             f.close()
 
             conf['user'] = config.get('general', 'user')
-            conf['password'] = config.get('general', 'password')
+            conf['token'] = config.get('general', 'token')
             conf['url'] = self._is_url(config.get('general', 'host_url'))
             conf['interval'] = config.getint('general', 'interval')
             conf['timeout'] = config.getint('general', 'timeout')

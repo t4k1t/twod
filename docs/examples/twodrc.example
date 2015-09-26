@@ -5,8 +5,8 @@
 # TwoDNS username
 user = my-user@example.com
 
-# TwoDNS password
-password = my-password
+# TwoDNS token
+token = my-token
 
 # Update URL in the form https://api.twodns.de/hosts/<your-host>
 # e.g. https://api.twodns.de/hosts/awesomehost.dd-dns.de

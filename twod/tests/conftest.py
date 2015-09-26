@@ -20,7 +20,7 @@ def valid_config(tmpdir):
     f.write("""
 [general]
 user     = username@example.com
-password = password
+token = token
 host_url = https://api.twodns.de/hosts/example.dd-dns.de
 interval = 9000
 timeout = 9000
@@ -42,7 +42,7 @@ def valid_config_mode_rr(tmpdir):
     f.write("""
 [general]
 user     = username@example.com
-password = password
+token = token
 host_url = https://api.twodns.de/hosts/example.dd-dns.de
 interval = 9000
 timeout = 9000
@@ -64,7 +64,7 @@ def invalid_host_config(tmpdir):
     f.write("""
 [general]
 user     = username@example.com
-password = password
+token = token
 host_url = https://127.0.0.1:57357
 interval = 9001
 timeout = 9000
@@ -86,7 +86,7 @@ def invalid_url_config(tmpdir):
     f.write("""
 [general]
 user     = username@example.com
-password = password
+token = token
 host_url = invalid_url
 interval = 9001
 timeout = 9000
@@ -108,7 +108,7 @@ def invalid_mode_config(tmpdir):
     f.write("""
 [general]
 user     = username@example.com
-password = password
+token = token
 host_url = https://127.0.0.1:57357
 interval = 9001
 timeout = 9000
@@ -129,7 +129,7 @@ def missing_username_config(tmpdir):
     f = tmpdir.join("twodrc")
     f.write("""
 [general]
-password = password
+token = token
 host_url = https://api.twodns.de/hosts/example.dd-dns.de
 interval = 9000
 timeout = 9000
@@ -151,7 +151,7 @@ def missing_section_config(tmpdir):
     f.write("""
 [general]
 user     = username@example.com
-password = password
+token = token
 host_url = https://api.twodns.de/hosts/example.dd-dns.de
 interval = 9000
 timeout = 9000
