@@ -28,7 +28,7 @@ class TestData:
 
         assert data._get_rec_ip() is False
         assert cls.interval == 9001
-        assert "connection error while fetching ip from twodns" in (
+        assert "error while fetching ip from twodns" in (
             caplog.text().lower())
 
     @mock.patch('twod.twod.get')
@@ -60,8 +60,8 @@ class TestData:
 
         patcher.stop()
         assert data._get_ext_ip() is False
-        assert "Connection error while fetching external IP" in (
-            caplog.text())
+        assert "error while fetching external ip" in (
+            caplog.text().lower())
 
     @mock.patch('twod.twod.get')
     def test_get_ext_ip_rr(self, mock_get, capsys, caplog,
