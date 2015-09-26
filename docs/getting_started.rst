@@ -18,8 +18,9 @@ Config format
    [general]
    user     = USERNAME
    password = PASSWORD
-   interval = REFRESH_INTERVAL
    host_url = DNS_HOST_URL
+   interval = REFRESH_INTERVAL
+   timeout  = HTTP_TIMEOUT
 
    [ip_service]
    mode     = MODE
@@ -37,11 +38,14 @@ general section
 ``password``
    Password used to authenticate to TwoDNS.
 
+``host_url``
+   URL of your TwoDNS host.
+
 ``interval``
    Refresh interval in seconds.
 
-``host_url``
-   URL of your TwoDNS host.
+``timeout``
+   Timeout for retrieving and setting your external IP, in seconds.
 
 ip_service section
 """"""""""""""""""

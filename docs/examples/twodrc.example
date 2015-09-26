@@ -15,6 +15,9 @@ host_url = https://api.twodns.de/hosts/my-example-host.dd-dns.de
 # Update interval - Check if IP has changed every x seconds.
 interval = 3600
 
+# Timeout for retrieving and setting your external IP, in seconds.
+timeout = 16
+
 [ip_service]
 # Method of selecting url to get external IP.
 # Possible values are `round_robin` or `random`.

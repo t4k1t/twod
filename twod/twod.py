@@ -74,6 +74,7 @@ class _Data:
         self.log = logging.getLogger('twod')
         self.ident = (conf['user'], conf['password'])
         self.url = conf['url']
+        self.timeout = conf['timeout']
         self.ip_mode = conf['ip_mode']
         ip_url = conf['ip_url'].split(' ')
         self.gen = _ServiceGenerator(ip_url)
@@ -91,7 +92,8 @@ class _Data:
         """
         self.log.debug("Fetching external ip...")
         try:
-            ip_request = get(self._get_service_url(), verify=True, timeout=16)
+            ip_request = get(self._get_service_url(), verify=True,
+                             timeout=self.timeout)
             ip_request.raise_for_status()
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
             message = "Error while fetching external IP: %s" % e
@@ -114,7 +116,7 @@ class _Data:
         self.log.debug("Fetching TwoDNS ip...")
         try:
             rec_request = get(
-                self.url, auth=self.ident, verify=True, timeout=16)
+                self.url, auth=self.ident, verify=True, timeout=self.timeout)
             rec_request.raise_for_status()
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
             message = "Error while fetching IP from TwoDNS: %s" % e
@@ -157,7 +159,7 @@ class _Data:
             payload = {"ip_address": new_ip}
             r = put(
                 self.url, auth=self.ident, data=dumps(payload), verify=True,
-                timeout=16)
+                timeout=self.timeout)
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
             message = "Error while updating IP: %s" % e
             self.log.warning(message)
@@ -262,6 +264,7 @@ class Twod:
             conf['password'] = config.get('general', 'password')
             conf['url'] = self._is_url(config.get('general', 'host_url'))
             conf['interval'] = config.getint('general', 'interval')
+            conf['timeout'] = config.getint('general', 'timeout')
             conf['ip_mode'] = self._is_mode(config.get('ip_service', 'mode'))
             conf['ip_url'] = self._is_url(config.get('ip_service', 'ip_urls'))
             conf['loglevel'] = config.get('logging', 'level')
