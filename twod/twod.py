@@ -90,13 +90,18 @@ class _Data:
         Returns False on failure.
 
         """
-        self.log.debug("Fetching external ip...")
+        self.log.debug("Fetching external IP...")
         try:
             ip_request = get(self._get_service_url(), verify=True,
                              timeout=self.timeout)
             ip_request.raise_for_status()
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
             message = "Error while fetching external IP: %s" % e
+            self.log.warning(message)
+            return False
+        except exceptions.Timeout:
+            message = ("Failed to fetch external IP: Server did not respond "
+                       "within %s seconds" % self.timeout)
             self.log.warning(message)
             return False
         except Exception as e:
@@ -113,13 +118,18 @@ class _Data:
         Returns IP as string. Returns False on failure.
 
         """
-        self.log.debug("Fetching TwoDNS ip...")
+        self.log.debug("Fetching TwoDNS IP...")
         try:
             rec_request = get(
                 self.url, auth=self.ident, verify=True, timeout=self.timeout)
             rec_request.raise_for_status()
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
             message = "Error while fetching IP from TwoDNS: %s" % e
+            self.log.warning(message)
+            return False
+        except exceptions.Timeout:
+            message = ("Failed to fetch TwoDNS IP: Server did not respond "
+                       "within %s seconds" % self.timeout)
             self.log.warning(message)
             return False
         except Exception as e:
@@ -131,6 +141,7 @@ class _Data:
             ip = rec_json['ip_address']
             return ip
 
+    # TODO: rename to _changed_ip()
     def _check_ip(self):
         """Check if external IP matches recorded IP.
 
@@ -164,6 +175,11 @@ class _Data:
             message = "Error while updating IP: %s" % e
             self.log.warning(message)
             return False
+        except exceptions.Timeout:
+            message = ("Failed to update IP: Server did not respond "
+                       "within %s seconds" % self.timeout)
+            self.log.warning(message)
+            return False
         except Exception as e:
             message = "Unexpected error while updating IP: %s" % e
             self.log.critical(message)
@@ -174,6 +190,7 @@ class _Data:
                 self.log.info(message)
                 self.rec_ip = new_ip
             else:
+                # TODO: Handle this properly
                 message = "Failed to update IP."
                 self.log.warning(message)
                 return r.status_code
