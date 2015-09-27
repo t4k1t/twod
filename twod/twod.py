@@ -82,6 +82,12 @@ class _Data:
         self.rec_ip = self._get_rec_ip()
 
     def _validate_ip(self, ip, families=[4, 6]):
+        """Validate textual IP address representation.
+
+        Returns passed IP string if valid.
+        Returns False on failure.
+
+        """
         # TODO: Add preference setting and CLI argument
         for family in families:
             try:
@@ -119,10 +125,6 @@ class _Data:
                        "within %s seconds" % self.timeout)
             self.log.warning(message)
             return False
-        except Exception as e:
-            message = "Unexpected error while fetching external IP: %s" % e
-            self.log.critical(message)
-            raise
         else:
             ip = ip_request.text.rstrip()
             if not self._validate_ip(ip):
@@ -151,10 +153,6 @@ class _Data:
                        "within %s seconds" % self.timeout)
             self.log.warning(message)
             return False
-        except Exception as e:
-            message = "Unexpected error while fetching IP from TwoDNS: %s" % e
-            self.log.critical(message)
-            raise
         else:
             rec_json = loads(rec_request.text)
             ip = rec_json['ip_address']
@@ -203,10 +201,6 @@ class _Data:
                        "within %s seconds" % self.timeout)
             self.log.warning(message)
             return False
-        except Exception as e:
-            message = "Unexpected error while updating IP: %s" % e
-            self.log.critical(message)
-            raise
         else:
             if(r.status_code == 200):
                 message = "IP changed to %s." % new_ip
@@ -311,10 +305,6 @@ class Twod:
         except (MissingSectionHeaderError, NoSectionError, NoOptionError,
                 ValueError, IOError) as e:
             message = "Configuration error: %s" % e
-            self.log.critical(message)
-            exit(1)
-        except Exception as e:
-            message = "Unexpected error while reading config: %s" % e
             self.log.critical(message)
             exit(1)
         return conf
