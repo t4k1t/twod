@@ -32,6 +32,7 @@ from lockfile.pidlockfile import PIDLockFile
 from os import path
 from random import randint
 from re import match
+from socket import inet_pton, error as socket_error, AF_INET, AF_INET6
 from time import sleep
 
 from daemon import DaemonContext
@@ -80,6 +81,20 @@ class _Data:
         self.gen = _ServiceGenerator(ip_url)
         self.rec_ip = self._get_rec_ip()
 
+    def _validate_ip(self, ip, families=[4, 6]):
+        # TODO: Add preference setting and CLI argument
+        for family in families:
+            try:
+                if family == 4:
+                    inet_pton(AF_INET, ip)
+                elif family == 6:
+                    inet_pton(AF_INET6, ip)
+            except (socket_error, UnicodeEncodeError):
+                pass
+            else:
+                return ip
+        return False
+
     def _get_service_url(self):
         return self.gen.next(self.ip_mode)
 
@@ -110,7 +125,11 @@ class _Data:
             raise
         else:
             ip = ip_request.text.rstrip()
-            return ip
+            if not self._validate_ip(ip):
+                message = "External IP discovery returned invalid IP"
+                self.log.warning(message)
+            else:
+                return ip
 
     def _get_rec_ip(self):
         """Get IP stored by TwoDNS.
@@ -139,7 +158,11 @@ class _Data:
         else:
             rec_json = loads(rec_request.text)
             ip = rec_json['ip_address']
-            return ip
+            if not self._validate_ip(ip):
+                message = "TwoDNS returned invalid IP"
+                self.log.warning(message)
+            else:
+                return ip
 
     # TODO: rename to _changed_ip()
     def _check_ip(self):
