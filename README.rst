@@ -10,6 +10,7 @@ dependencies
 
 - python2 (>=dev-lang/python-2.7)
 - python-daemon (>=dev-python/python-daemon-1.6)
+- lockfile (>=dev-python/lockfile-0.9.1)
 - requests (>=dev-python/requests-1.2.3)
 
 
@@ -45,8 +46,8 @@ Gentoo GNU/Linux
 
 1. Install ``twod`` from `my little overlay <https://github.com/twisted-pear/my-little-overlay>`_.
 
-2. Copy ``docs/example/twodrc.example`` to ``/etc/twod/twodrc`` and change the
-   settings according to your setup.
+2. Copy ``/usr/share/doc/twod-<version>/examples/twodrc.example`` to
+   ``/etc/twodrc`` and change the settings according to your setup.
 
 
 usage
