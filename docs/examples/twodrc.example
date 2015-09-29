@@ -18,6 +18,9 @@ interval = 3600
 # Timeout for retrieving and setting your external IP, in seconds.
 timeout = 16
 
+# Maximum number of redirects to follow on HTTP requests.
+redirects = 2
+
 [ip_service]
 # Method of selecting url to get external IP.
 # Possible values are `round_robin` or `random`.

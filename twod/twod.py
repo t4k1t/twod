@@ -36,12 +36,14 @@ from socket import inet_pton, error as socket_error, AF_INET, AF_INET6
 from time import sleep
 
 from daemon import DaemonContext
-from requests import get, put, exceptions
+from requests import exceptions, Session
 
 from _version import __version__
 
 
 class _ServiceGenerator:
+    # TODO: Add "fallback" mode: Always use first one unless it doesn't
+    # respond
 
     """Select service URL depending on mode."""
 
@@ -76,6 +78,7 @@ class _Data:
         self.ident = (conf['user'], conf['token'])
         self.url = conf['url']
         self.timeout = conf['timeout']
+        self.redirects = conf['redirects']
         self.ip_mode = conf['ip_mode']
         ip_url = conf['ip_url'].split(' ')
         self.gen = _ServiceGenerator(ip_url)
@@ -113,8 +116,10 @@ class _Data:
         """
         self.log.debug("Fetching external IP...")
         try:
-            ip_request = get(self._get_service_url(), verify=True,
-                             timeout=self.timeout)
+            with Session() as s:
+                s.max_redirects = self.redirects
+                ip_request = s.get(self._get_service_url(), verify=True,
+                                   timeout=self.timeout)
             ip_request.raise_for_status()
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
             message = "Error while fetching external IP: %s" % e
@@ -124,6 +129,15 @@ class _Data:
             message = ("Failed to fetch external IP: Server did not respond "
                        "within %s seconds" % self.timeout)
             self.log.warning(message)
+            return False
+        except exceptions.TooManyRedirects:
+            message = "Failed to fetch external IP: Too many redirects"
+            self.log.warning(message)
+            return False
+        except Exception as e:
+            message = ("Unexpected error while fetching external IP, retrying "
+                       "at next interval: %s" % e)
+            self.log.error(message)
             return False
         else:
             ip = ip_request.text.rstrip()
@@ -141,8 +155,11 @@ class _Data:
         """
         self.log.debug("Fetching TwoDNS IP...")
         try:
-            rec_request = get(
-                self.url, auth=self.ident, verify=True, timeout=self.timeout)
+            with Session() as s:
+                s.max_redirects = self.redirects
+                rec_request = s.get(
+                    self.url, auth=self.ident, verify=True,
+                    timeout=self.timeout)
             rec_request.raise_for_status()
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
             message = "Error while fetching IP from TwoDNS: %s" % e
@@ -153,6 +170,15 @@ class _Data:
                        "within %s seconds" % self.timeout)
             self.log.warning(message)
             return False
+        except exceptions.TooManyRedirects:
+            message = "Failed to fetch TwoDNS IP: Too many redirects"
+            self.log.warning(message)
+            return False
+        except Exception as e:
+            message = ("Unexpected error while fetching TwoDNS IP, retrying "
+                       "at next interval: %s" % e)
+            self.log.error(message)
+            return False
         else:
             rec_json = loads(rec_request.text)
             ip = rec_json['ip_address']
@@ -162,7 +188,6 @@ class _Data:
             else:
                 return ip
 
-    # TODO: rename to _changed_ip()
     def _check_ip(self):
         """Check if external IP matches recorded IP.
 
@@ -187,30 +212,32 @@ class _Data:
     def _update_ip(self, new_ip):
         """Update IP stored at TwoDNS."""
         self.log.debug("Updating recorded IP...")
+        payload = {"ip_address": new_ip}
         try:
-            payload = {"ip_address": new_ip}
-            r = put(
-                self.url, auth=self.ident, data=dumps(payload), verify=True,
-                timeout=self.timeout)
+            with Session() as s:
+                s.max_redirects = self.redirects
+                r = s.put(
+                    self.url, auth=self.ident, data=dumps(payload),
+                    verify=True, timeout=self.timeout)
+            r.raise_for_status()
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
             message = "Error while updating IP: %s" % e
             self.log.warning(message)
-            return False
         except exceptions.Timeout:
             message = ("Failed to update IP: Server did not respond "
                        "within %s seconds" % self.timeout)
             self.log.warning(message)
-            return False
+        except exceptions.TooManyRedirects:
+            message = "Failed to update IP: Too many redirects"
+            self.log.warning(message)
+        except Exception as e:
+            message = ("Unexpected error while updating TwoDNS IP, retrying "
+                       "at next interval: %s" % e)
+            self.log.error(message)
         else:
-            if(r.status_code == 200):
-                message = "IP changed to %s." % new_ip
-                self.log.info(message)
-                self.rec_ip = new_ip
-            else:
-                # TODO: Handle this properly
-                message = "Failed to update IP."
-                self.log.warning(message)
-                return r.status_code
+            message = "IP changed to %s." % new_ip
+            self.log.info(message)
+            self.rec_ip = new_ip
 
 
 class Twod:
@@ -285,7 +312,14 @@ class Twod:
         """
         self.log.debug("Reading config...")
         conf = {}
-        config = SafeConfigParser()
+        defaults = {
+            'interval': '3600',
+            'timeout': '16',
+            'redirects': '2',
+            'ip_mode': 'random',
+            'loglevel': 'WARN',
+        }
+        config = SafeConfigParser(defaults=defaults)
         try:
             # Check if config is even readable
             f = open(path.expanduser(config_path), 'r')
@@ -297,8 +331,9 @@ class Twod:
             conf['user'] = config.get('general', 'user')
             conf['token'] = config.get('general', 'token')
             conf['url'] = self._is_url(config.get('general', 'host_url'))
-            conf['interval'] = config.getint('general', 'interval')
-            conf['timeout'] = config.getint('general', 'timeout')
+            conf['interval'] = config.getfloat('general', 'interval')
+            conf['timeout'] = config.getfloat('general', 'timeout')
+            conf['redirects'] = config.getint('general', 'redirects')
             conf['ip_mode'] = self._is_mode(config.get('ip_service', 'mode'))
             conf['ip_url'] = self._is_url(config.get('ip_service', 'ip_urls'))
             conf['loglevel'] = config.get('logging', 'level')
