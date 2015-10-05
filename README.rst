@@ -24,18 +24,19 @@ the ``-c`` parameter.
 Example config::
 
     [general]
-    user     = username@example.com
-    token    = token
-    host_url = https://api.twodns.de/hosts/myexamplehost
-    interval = 3600
-    timeout  = 16
+    user      = username@example.com
+    token     = token
+    host_url  = https://api.twodns.de/hosts/myexamplehost
+    interval  = 3600
+    timeout   = 16
+    redirects = 2
 
     [ip_service]
-    mode     = random
-    ip_urls  = https://icanhazip.com https://ipinfo.io/ip
+    mode      = random
+    ip_urls   = https://icanhazip.com https://ipinfo.io/ip
 
     [logging]
-    level    = WARN
+    level     = WARN
 
 
 installation

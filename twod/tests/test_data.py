@@ -1,6 +1,7 @@
 """Tests for twod's main function."""
 
 import mock
+from requests import exceptions
 
 from twod.twod import Twod, _Data
 
@@ -9,7 +10,7 @@ class TestData:
 
     """Test main function."""
 
-    @mock.patch('twod.twod.get')
+    @mock.patch('twod.twod.Session.get')
     def test_get_rec_ip(self, mock_get, capsys, valid_config_path):
         """Test retrieval of recorded IP."""
         MyMock = mock.Mock(text=u'{"ip_address": "127.0.0.2"}')
@@ -31,7 +32,7 @@ class TestData:
         assert "error while fetching ip from twodns" in (
             caplog.text().lower())
 
-    @mock.patch('twod.twod.get')
+    @mock.patch('twod.twod.Session.get')
     def test_get_ext_ip(self, mock_get, capsys, caplog,
                         valid_config_path):
         """Test retrieval of external IP."""
@@ -51,7 +52,7 @@ class TestData:
                                      invalid_host_config_path):
         """Test config parsing with invalid IP service URLs."""
         MyMock = mock.Mock(text=u'{"ip_address": "127.0.0.2"}')
-        patcher = mock.patch('twod.twod.get')
+        patcher = mock.patch('twod.twod.Session.get')
         my_mock = patcher.start()
         my_mock.return_value = MyMock
         cls = Twod(invalid_host_config_path)
@@ -63,7 +64,7 @@ class TestData:
         assert "error while fetching external ip" in (
             caplog.text().lower())
 
-    @mock.patch('twod.twod.get')
+    @mock.patch('twod.twod.Session.get')
     def test_get_ext_ip_rr(self, mock_get, capsys, caplog,
                            valid_config_mode_rr_path):
         """Test round robin URL selection mode."""
@@ -81,7 +82,7 @@ class TestData:
         assert data._get_service_url() == 'https://nr_three'
         assert data._get_service_url() == 'https://nr_one'
 
-    @mock.patch('twod.twod.get')
+    @mock.patch('twod.twod.Session.get')
     def test_check(self, mock_get, capsys, caplog,
                    valid_config_path):
         """Test IP comparison."""
@@ -104,8 +105,8 @@ class TestData:
         mock_get.return_value = MyMock3
         assert data._check_ip() is False
 
-    @mock.patch('twod.twod.get')
-    @mock.patch('twod.twod.put')
+    @mock.patch('twod.twod.Session.get')
+    @mock.patch('twod.twod.Session.put')
     def test_update(self, mock_put, mock_get, capsys, caplog,
                     valid_config_path):
         """Test IP update."""
@@ -119,18 +120,22 @@ class TestData:
         data._update_ip('127.0.0.3')
         assert data.rec_ip == '127.0.0.3'
 
-    @mock.patch('twod.twod.get')
-    @mock.patch('twod.twod.put')
+    @mock.patch('twod.twod.Session.get')
+    @mock.patch('twod.twod.Session.put')
     def test_update_fail(self, mock_put, mock_get, capsys, caplog,
                          valid_config_path):
         """Test IP update failure."""
         MyMock = mock.Mock(text=u'{"ip_address": "127.0.0.2"}')
-        MyMock2 = mock.Mock(status_code=503)
+
+        def http_error(*args, **kwargs):
+            raise exceptions.HTTPError("Service Unavailable")
+
+        MyMock2 = mock.Mock(status_code=503, side_effect=http_error)
         mock_get.return_value = MyMock
-        mock_put.return_value = MyMock2
+        mock_put.side_effect = MyMock2
         cls = Twod(valid_config_path)
         data = _Data(cls.conf)
 
         data._update_ip('127.0.0.3')
         assert data.rec_ip == '127.0.0.2'
-        assert "Failed to update IP" in caplog.text()
+        assert "Error while updating IP" in caplog.text()

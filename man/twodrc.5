@@ -1,6 +1,6 @@
 .\" Manpage for twodrc.
 .\" Contact tablet-mode@monochromatic.cc to correct errors or typos.
-.TH twodrc 5 "19 March 2014" "twod 0.2.0" "twod man page"
+.TH twodrc 5 "1 October 2015" "twod 0.4.0" "twod man page"
 .SH NAME
 \fBtwodrc\fR - \fBtwod\fR twodns.de host updater daemon configuration files
 .SH SYNOPSIS
@@ -30,16 +30,21 @@ URL of the twodns.de host.
 .TP
 .B interval
 .br
-Update interval in seconds.
+Update interval in seconds (default 3600).
 .TP
 .B timeout
 .br
-Timeout for retrieving and setting your external IP, in seconds.
+Timeout for retrieving and setting your external IP, in seconds (default 16).
+.TP
+.B redirects
+.br
+Maximum number of redirects to follow on HTTP requests (default 2).
 .SS "IP_SERVICE SECTION"
 .TP
 .B "mode"
 .br
-Sets the method of selecting the URL used to retrieve current external IP.
+Sets the method of selecting the URL used to retrieve current external IP
+(default random).
 .br
 Possible values:
 .P
@@ -54,7 +59,7 @@ List of URLs used to query external IP.
 .TP
 .B "level"
 .br
-Log level.
+Log level (default WARN).
 .SH SEE ALSO
 twod(8)
 .SH FILES

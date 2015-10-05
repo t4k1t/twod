@@ -3,6 +3,20 @@
 Changelog
 =========
 
+0.4.0
+-----
+
+* Add config setting for maximum number of redirects to follow on HTTP
+  requests.
+
+* Update man pages.
+
+* Add CLI argument for pidfile location.
+
+* Make interval, timeout, redirects, ip_mode and loglevel settings optional.
+
+* Never exit on errors caused by HTTP requests.
+
 0.3.2
 -----
 

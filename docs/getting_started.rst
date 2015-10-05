@@ -8,7 +8,7 @@ Configuration
 
 ``twod`` will look for a configuration file in ``/etc/twod/twodrc``. Optionally
 you can tell ``twod`` to use a specified configuration file instead by using
-the ``-c`` parameter. 
+the ``-c`` parameter.
 
 Config format
 ^^^^^^^^^^^^^
@@ -16,18 +16,19 @@ Config format
 .. code-block:: ini
 
    [general]
-   user     = USERNAME
-   token    = TOKEN
-   host_url = DNS_HOST_URL
-   interval = REFRESH_INTERVAL
-   timeout  = HTTP_TIMEOUT
+   user      = USERNAME
+   token     = TOKEN
+   host_url  = DNS_HOST_URL
+   interval  = REFRESH_INTERVAL
+   timeout   = HTTP_TIMEOUT
+   redirects = MAX_HTTP_REDIRECTS
 
    [ip_service]
-   mode     = MODE
-   ip_urls  = URLS
+   mode      = MODE
+   ip_urls   = URLS
 
    [logging]
-   level    = LOGLEVEL
+   level     = LOGLEVEL
 
 general section
 """""""""""""""
@@ -47,6 +48,9 @@ general section
 ``timeout``
    Timeout for retrieving and setting your external IP, in seconds.
 
+``redirects``
+   Maximum number of redirects to follow on HTTP requests.
+
 ip_service section
 """"""""""""""""""
 
@@ -55,6 +59,7 @@ ip_service section
    Possible values:
 
       * ``random``: Chooses random ip service on every refresh.
+
       * ``round_robin``: Loop through ip services in the order they are
            defined.
 
@@ -69,9 +74,13 @@ logging section
    Log level. Can be one of:
 
       * `DEBUG`
+
       * `INFO`
+
       * `WARNING`
+
       * `ERROR`
+
       * `CRITICAL`
 
 Example config

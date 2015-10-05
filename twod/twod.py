@@ -29,7 +29,7 @@ from ConfigParser import (SafeConfigParser, MissingSectionHeaderError,
                           NoSectionError, NoOptionError)
 from json import dumps, loads
 from lockfile.pidlockfile import PIDLockFile
-from os import path
+from os import access, path, W_OK, X_OK
 from random import randint
 from re import match
 from socket import inet_pton, error as socket_error, AF_INET, AF_INET6
@@ -216,10 +216,10 @@ class _Data:
         try:
             with Session() as s:
                 s.max_redirects = self.redirects
-                r = s.put(
+                rq = s.put(
                     self.url, auth=self.ident, data=dumps(payload),
                     verify=True, timeout=self.timeout)
-            r.raise_for_status()
+            rq.raise_for_status()
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
             message = "Error while updating IP: %s" % e
             self.log.warning(message)
@@ -359,6 +359,8 @@ def main():
     parser = ArgumentParser()
     parser.add_argument('-c', '--config', metavar='FILE',
                         help="load configuration from FILE")
+    parser.add_argument('-p', '--pidfile', metavar='FILE',
+                        help="use FILE as pidfile")
     parser.add_argument('-D', '--no-detach', dest='nodetach',
                         action='store_true', help="do not detach from console")
     parser.add_argument('-V', '--version', action='version',
@@ -372,8 +374,16 @@ def main():
     if args.nodetach:
         twod.run()
     else:
+        pidfile = '/var/run/twod.pid'
+        if args.pidfile:
+            pidfile = args.pidfile
         twod.log.debug("Moving to background...")
-        with DaemonContext(pidfile=PIDLockFile('/var/run/twod.pid')):
+
+        # Try to catch issues with pidfile before detaching, but as late as
+        # possible to avoid race conditions
+        if not access(path.dirname(pidfile), W_OK | X_OK):
+            twod.log.critical("Unable to write pidfile")
+        with DaemonContext(pidfile=PIDLockFile(pidfile)):
             twod.run()
 
 

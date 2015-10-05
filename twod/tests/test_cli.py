@@ -42,7 +42,7 @@ class TestCLI:
     # Exit with message ``DAEMON`` if daemonisation is attempted.
     @mock.patch('twod.twod.DaemonContext', side_effect=SystemExit("DAEMON"))
     @mock.patch('twod.twod._Data')
-    @mock.patch('twod.twod.get')
+    @mock.patch('twod.twod.Session.get')
     # If we reach the ``sleep`` statement we already completed one update
     # cycle so we can exit there.
     @mock.patch('twod.twod.sleep', side_effect=SystemExit("TEST DONE"))
