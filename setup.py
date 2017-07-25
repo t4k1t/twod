@@ -33,7 +33,7 @@ setup(
     url='https://github.com/tablet-mode/twod',
 
     # Author details
-    author='Tablet Mode',
+    author='Thomas Kager',
     author_email='tablet-mode@monochromatic.cc',
 
     # Choose your license

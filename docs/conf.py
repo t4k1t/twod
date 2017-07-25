@@ -42,7 +42,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'twod'
-copyright = '2014, Tablet Mode'
+copyright = '2014, Thomas Kager'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -185,7 +185,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'twod.tex', 'twod Documentation',
-   'Tablet Mode', 'manual'),
+   'Thomas Kager', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -215,7 +215,7 @@ latex_documents = [
 # (source start file, name, description, authors, manual section).
 man_pages = [
     ('index', 'twod', 'twod Documentation',
-     ['Tablet Mode'], 1)
+     ['Thomas Kager'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -229,7 +229,7 @@ man_pages = [
 #  dir menu entry, description, category)
 texinfo_documents = [
   ('index', 'twod', 'twod Documentation',
-   'Tablet Mode', 'twod', 'TwoDNS updater.',
+   'Thomas Kager', 'twod', 'TwoDNS updater.',
    'Miscellaneous'),
 ]
 
