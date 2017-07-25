@@ -4,7 +4,7 @@
 
 twod is a client for the TwoDNS dynamic DNS service.
 
-Copyright (C) 2014 Tablet Mode <tablet-mode AT monochromatic DOT cc>
+Copyright (C) 2014 Thomas Kager <tablet-mode AT monochromatic DOT cc>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,7 +44,6 @@ from _version import __version__
 class _ServiceGenerator:
     # TODO: Add "fallback" mode: Always use first one unless it doesn't
     # respond
-
     """Select service URL depending on mode."""
 
     def __init__(self, services):
@@ -70,7 +69,6 @@ class _ServiceGenerator:
 
 
 class _Data:
-
     """This is where the fun begins."""
 
     def __init__(self, conf):
@@ -241,7 +239,6 @@ class _Data:
 
 
 class Twod:
-
     """Twod class."""
 
     def __init__(self, config_path='/etc/twod/twodrc'):
