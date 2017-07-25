@@ -3,8 +3,7 @@
 import pytest
 
 
-### CONFIG FIXTURES ###
-
+# Config fixtures
 @pytest.fixture
 def empty_config(tmpdir):
     """Invalid configuration."""
@@ -220,11 +219,10 @@ def missing_section_config_path(missing_section_config):
     return pathstring
 
 
-### DATA FIXTURES ###
-
+# Data fixtures
 @pytest.fixture
 def twodns_response():
-    """TwoDNS response fixture."""
+    """Response fixture."""
     response = (u'{"activate_wildcard":false,"ttl":60,'
                 '"fqdn":"example.dd-dns.de","ip_address":"127.0.0.1",'
                 '"url":"https://api.twodns.de/hosts/example.dd-dns.de"}')

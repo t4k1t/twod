@@ -7,7 +7,6 @@ from twod.twod import Twod, _Data
 
 
 class TestData:
-
     """Test main function."""
 
     @mock.patch('twod.twod.Session.get')
@@ -30,7 +29,7 @@ class TestData:
         assert data._get_rec_ip() is False
         assert cls.interval == 9001
         assert "error while fetching ip from twodns" in (
-            caplog.text().lower())
+            caplog.text.lower())
 
     @mock.patch('twod.twod.Session.get')
     def test_get_ext_ip(self, mock_get, capsys, caplog,
@@ -62,7 +61,7 @@ class TestData:
         patcher.stop()
         assert data._get_ext_ip() is False
         assert "error while fetching external ip" in (
-            caplog.text().lower())
+            caplog.text.lower())
 
     @mock.patch('twod.twod.Session.get')
     def test_get_ext_ip_rr(self, mock_get, capsys, caplog,
@@ -138,4 +137,4 @@ class TestData:
 
         data._update_ip('127.0.0.3')
         assert data.rec_ip == '127.0.0.2'
-        assert "Error while updating IP" in caplog.text()
+        assert "Error while updating IP" in caplog.text

@@ -8,7 +8,6 @@ from twod._version import __version__
 
 
 class TestCLI:
-
     """Test CLI."""
 
     def test_cli(self, capsys, monkeypatch):

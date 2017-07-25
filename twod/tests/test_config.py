@@ -7,7 +7,6 @@ from twod.twod import Twod
 
 
 class TestConfig:
-
     """Test config parsing."""
 
     @mock.patch('twod.twod._Data')
