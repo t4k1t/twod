@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 
 """twod TwoDNS host IP updater daemon.
 
@@ -21,11 +21,13 @@ along with this program.  If not, see [http://www.gnu.org/licenses/].
 
 """
 
+from __future__ import absolute_import
+
 import logging.handlers
 import logging.config
 
 from argparse import ArgumentParser
-from ConfigParser import (SafeConfigParser, MissingSectionHeaderError,
+from configparser import (SafeConfigParser, MissingSectionHeaderError,
                           NoSectionError, NoOptionError)
 from json import dumps, loads
 from lockfile.pidlockfile import PIDLockFile
@@ -38,37 +40,36 @@ from time import sleep
 from daemon import DaemonContext
 from requests import exceptions, Session
 
-from _version import __version__
+from twod._version import __version__
 
 
-class _ServiceGenerator:
-    # TODO: Add "fallback" mode: Always use first one unless it doesn't
-    # respond
+class _ServiceGenerator(object):
     """Select service URL depending on mode."""
 
-    def __init__(self, services):
+    def __init__(self, services, mode):
         self.services = services
+        self.mode = mode
         self.cur = -1
 
     def __iter__(self):
         return self
 
-    def next(self, mode):
+    def next(self):
         self.cur = self.cur + 1
-        if mode == 'round_robin':
+        if self.mode == 'round_robin':
             if self.cur < len(self.services):
                 service = self.services[self.cur]
             else:
                 self.cur = 0
                 service = self.services[self.cur]
             return service
-        elif mode == 'random':
+        elif self.mode == 'random':
             self.cur = randint(0, (len(self.services) - 1))
             service = self.services[self.cur]
             return service
 
 
-class _Data:
+class _Data(object):
     """This is where the fun begins."""
 
     def __init__(self, conf):
@@ -77,9 +78,8 @@ class _Data:
         self.url = conf['url']
         self.timeout = conf['timeout']
         self.redirects = conf['redirects']
-        self.ip_mode = conf['ip_mode']
-        ip_url = conf['ip_url'].split(' ')
-        self.gen = _ServiceGenerator(ip_url)
+        self.gen = _ServiceGenerator(conf['ip_url'].split(' '),
+                                     conf['ip_mode'])
         self.rec_ip = self._get_rec_ip()
 
     def _validate_ip(self, ip, families=[4, 6]):
@@ -89,7 +89,6 @@ class _Data:
         Returns False on failure.
 
         """
-        # TODO: Add preference setting and CLI argument
         for family in families:
             try:
                 if family == 4:
@@ -97,13 +96,15 @@ class _Data:
                 elif family == 6:
                     inet_pton(AF_INET6, ip)
             except (socket_error, UnicodeEncodeError):
+                # This is fine
                 pass
             else:
                 return ip
         return False
 
     def _get_service_url(self):
-        return self.gen.next(self.ip_mode)
+        """Get next URL from service generator."""
+        return self.gen.next()
 
     def _get_ext_ip(self):
         """Get external IP.
@@ -120,28 +121,24 @@ class _Data:
                                    timeout=self.timeout)
             ip_request.raise_for_status()
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
-            message = "Error while fetching external IP: %s" % e
-            self.log.warning(message)
+            self.log.warning("Error while fetching external IP: %s" % e)
             return False
         except exceptions.Timeout:
-            message = ("Failed to fetch external IP: Server did not respond "
-                       "within %s seconds" % self.timeout)
-            self.log.warning(message)
+            self.log.warning("Failed to fetch external IP: Server did not "
+                             "respond within %s seconds" % self.timeout)
             return False
         except exceptions.TooManyRedirects:
-            message = "Failed to fetch external IP: Too many redirects"
-            self.log.warning(message)
+            self.log.warning("Failed to fetch external IP: "
+                             "Too many redirects")
             return False
         except Exception as e:
-            message = ("Unexpected error while fetching external IP, retrying "
-                       "at next interval: %s" % e)
-            self.log.error(message)
+            self.log.error("Unexpected error while fetching external IP "
+                           ", retrying at next interval: %s" % e)
             return False
         else:
             ip = ip_request.text.rstrip()
             if not self._validate_ip(ip):
-                message = "External IP discovery returned invalid IP"
-                self.log.warning(message)
+                self.log.warning("External IP discovery returned invalid IP")
             else:
                 return ip
 
@@ -160,29 +157,24 @@ class _Data:
                     timeout=self.timeout)
             rec_request.raise_for_status()
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
-            message = "Error while fetching IP from TwoDNS: %s" % e
-            self.log.warning(message)
+            self.log.warning("Error while fetching IP from TwoDNS: %s" % e)
             return False
         except exceptions.Timeout:
-            message = ("Failed to fetch TwoDNS IP: Server did not respond "
-                       "within %s seconds" % self.timeout)
-            self.log.warning(message)
+            self.log.warning("Failed to fetch TwoDNS IP: Server did not "
+                             "respond within %s seconds" % self.timeout)
             return False
         except exceptions.TooManyRedirects:
-            message = "Failed to fetch TwoDNS IP: Too many redirects"
-            self.log.warning(message)
+            self.log.warning("Failed to fetch TwoDNS IP: Too many redirects")
             return False
         except Exception as e:
-            message = ("Unexpected error while fetching TwoDNS IP, retrying "
-                       "at next interval: %s" % e)
-            self.log.error(message)
+            self.log.error("Unexpected error while fetching TwoDNS IP, "
+                           "retrying at next interval: %s" % e)
             return False
         else:
             rec_json = loads(rec_request.text)
             ip = rec_json['ip_address']
             if not self._validate_ip(ip):
-                message = "TwoDNS returned invalid IP"
-                self.log.warning(message)
+                self.log.warning("TwoDNS returned invalid IP")
             else:
                 return ip
 
@@ -219,26 +211,21 @@ class _Data:
                     verify=True, timeout=self.timeout)
             rq.raise_for_status()
         except (exceptions.ConnectionError, exceptions.HTTPError) as e:
-            message = "Error while updating IP: %s" % e
-            self.log.warning(message)
+            self.log.warning("Error while updating IP: %s" % e)
         except exceptions.Timeout:
-            message = ("Failed to update IP: Server did not respond "
-                       "within %s seconds" % self.timeout)
-            self.log.warning(message)
+            self.log.warning("Failed to update IP: Server did not respond "
+                             "within %s seconds" % self.timeout)
         except exceptions.TooManyRedirects:
-            message = "Failed to update IP: Too many redirects"
-            self.log.warning(message)
+            self.log.warning("Failed to update IP: Too many redirects")
         except Exception as e:
-            message = ("Unexpected error while updating TwoDNS IP, retrying "
-                       "at next interval: %s" % e)
-            self.log.error(message)
+            self.log.error("Unexpected error while updating TwoDNS IP, "
+                           "retrying at next interval: %s" % e)
         else:
-            message = "IP changed to %s." % new_ip
-            self.log.info(message)
+            self.log.info("IP changed to %s." % new_ip)
             self.rec_ip = new_ip
 
 
-class Twod:
+class Twod(object):
     """Twod class."""
 
     def __init__(self, config_path='/etc/twod/twodrc'):
@@ -266,7 +253,7 @@ class Twod:
             raise ValueError("Invalid mode: '%s'" % mode)
         return mode
 
-    def _setup_logger(self, level='WARN'):
+    def _setup_logger(self, level='WARNING'):
         """Setup logging."""
         logging.config.dictConfig({
             'version': 1,
@@ -314,7 +301,7 @@ class Twod:
             'timeout': '16',
             'redirects': '2',
             'ip_mode': 'random',
-            'loglevel': 'WARN',
+            'loglevel': 'WARNING',
         }
         config = SafeConfigParser(defaults=defaults)
         try:
@@ -333,11 +320,11 @@ class Twod:
             conf['redirects'] = config.getint('general', 'redirects')
             conf['ip_mode'] = self._is_mode(config.get('ip_service', 'mode'))
             conf['ip_url'] = self._is_url(config.get('ip_service', 'ip_urls'))
-            conf['loglevel'] = config.get('logging', 'level')
+            conf['loglevel'] = config.get('logging', 'level',
+                                          fallback='WARNING')
         except (MissingSectionHeaderError, NoSectionError, NoOptionError,
                 ValueError, IOError) as e:
-            message = "Configuration error: %s" % e
-            self.log.critical(message)
+            self.log.critical("Configuration error: %s" % e)
             exit(1)
         return conf
 
@@ -359,7 +346,8 @@ def main():
     parser.add_argument('-p', '--pidfile', metavar='FILE',
                         help="use FILE as pidfile")
     parser.add_argument('-D', '--no-detach', dest='nodetach',
-                        action='store_true', help="do not detach from console")
+                        action='store_true',
+                        help="do not detach from console")
     parser.add_argument('-V', '--version', action='version',
                         version='twod ' + __version__)
     args = parser.parse_args()
@@ -380,6 +368,7 @@ def main():
         # possible to avoid race conditions
         if not access(path.dirname(pidfile), W_OK | X_OK):
             twod.log.critical("Unable to write pidfile")
+            exit(1)
         with DaemonContext(pidfile=PIDLockFile(pidfile)):
             twod.run()
 

@@ -44,9 +44,9 @@ setup(
 
         'License :: OSI Approved :: GPLv3 License',
 
-        'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
     ],
 
     keywords='daemon dns',
@@ -54,8 +54,9 @@ setup(
     packages=find_packages(exclude=["docs", "tests*"]),
 
     install_requires=[
-        'python-daemon==1.5.5',
-        'requests==2.4.3',
+        'python-daemon==2.1.2',
+        'requests==2.18.4',
+        'configparser==3.5.0',
     ],
 
     package_data={},

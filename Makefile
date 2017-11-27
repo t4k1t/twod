@@ -1,4 +1,4 @@
-PYTHON=`which python2`
+PYTHON=`which python`
 DESTDIR=/usr/bin/
 PROJECT=twod
 
@@ -31,7 +31,6 @@ clean:
 	rm -rf build/ MANIFEST
 	find . -type f -name '*.py[cod]' -delete
 	find . -type d -name '__pycache__' -delete
-
 
 test:
 	tox

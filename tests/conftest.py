@@ -29,7 +29,7 @@ mode     = random
 ip_urls  = https://icanhazip.com https://ipinfo.io/ip
 
 [logging]
-level    = WARN
+level    = WARNING
 """)
     return tmpdir
 
@@ -51,7 +51,7 @@ mode     = round_robin
 ip_urls  = https://nr_one https://nr_two https://nr_three
 
 [logging]
-level    = WARN
+level    = WARNING
 """)
     return tmpdir
 
@@ -73,7 +73,7 @@ mode     = random
 ip_urls  = https://127.0.0.2:57357
 
 [logging]
-level    = WARN
+level    = WARNING
 """)
     return tmpdir
 
@@ -95,7 +95,7 @@ mode     = random
 ip_urls  = invalid_url
 
 [logging]
-level    = WARN
+level    = WARNING
 """)
     return tmpdir
 
@@ -117,7 +117,7 @@ mode     = invalid_mode
 ip_urls  = https://127.0.0.2:57357
 
 [logging]
-level    = WARN
+level    = WARNING
 """)
     return tmpdir
 
@@ -138,7 +138,7 @@ mode     = random
 ip_urls  = https://icanhazip.com https://ipinfo.io/ip
 
 [logging]
-level    = WARN
+level    = WARNING
 """)
     return tmpdir
 
@@ -156,7 +156,7 @@ interval = 9000
 timeout = 9000
 
 [logging]
-level    = WARN
+level    = WARNING
 """)
     return tmpdir
 

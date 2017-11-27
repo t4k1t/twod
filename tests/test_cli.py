@@ -63,4 +63,4 @@ class TestCLI:
         with pytest.raises(SystemExit):
             main()
         out, err = capsys.readouterr()
-        assert "twod {}".format(__version__) in err
+        assert "twod {}".format(__version__) in out + err

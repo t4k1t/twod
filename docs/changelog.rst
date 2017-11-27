@@ -3,6 +3,13 @@
 Changelog
 =========
 
+0.5.0
+-----
+
+* Add python 3 compatibility. [`#7 <https://github.com/tablet-mode/twod/issues/7>`_]
+
+* Tidy up a bit.
+
 0.4.0
 -----
 

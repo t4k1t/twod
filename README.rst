@@ -8,7 +8,7 @@ twod
 dependencies
 ============
 
-- python2 (>=dev-lang/python-2.7)
+- python (>=dev-lang/python-2.7)
 - python-daemon (>=dev-python/python-daemon-1.6)
 - lockfile (>=dev-python/lockfile-0.9.1)
 - requests (>=dev-python/requests-1.2.3)
@@ -36,7 +36,7 @@ Example config::
     ip_urls   = https://icanhazip.com https://ipinfo.io/ip
 
     [logging]
-    level     = WARN
+    level     = WARNING
 
 
 installation
@@ -69,6 +69,14 @@ documentation
 You can find detailed documentation at
 `twod's Read the Docs page <https://twod.readthedocs.org/en/latest/>`_,
 powered by Sphinx_.
+
+
+tests
+=====
+
+Tests can be run by simply installing and invoking tox:
+
+   $ tox
 
 
 

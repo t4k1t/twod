@@ -35,5 +35,5 @@ ip_urls = https://icanhazip.com https://ipinfo.io/ip
 
 
 [logging]
-# Log level. Possible values: DEBUG | INFO | WARN | ERROR | CRITICAL
-level = WARN
+# Log level. Possible values: DEBUG | INFO | WARNING | ERROR | CRITICAL
+level = WARNING
