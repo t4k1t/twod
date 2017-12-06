@@ -5,6 +5,9 @@
 from setuptools import setup, find_packages
 import codecs
 import os
+import sys
+
+import setuptools
 
 here = os.path.abspath(os.path.dirname(__file__))
 
@@ -20,6 +23,26 @@ def get_version(fname='twod/_version.py'):
             if line.startswith('__version__'):
                 return (line.split('=')[-1].strip().strip('"'))
 
+INSTALL_REQUIRES = [
+    'requests>=2.8.1',
+    'lockfile>=0.9.1',
+]
+
+EXTRAS_REQUIRE = {}
+
+# Different versions of dependencies depending on python version
+if sys.version_info[0:2] < (3, 0):
+    INSTALL_REQUIRES.append("python-daemon<2.0")
+else:
+    INSTALL_REQUIRES.append("python-daemon>2.1.1")
+
+# Additional requirements for python 2
+if int(setuptools.__version__.split(".", 1)[0]) < 18:
+    assert "bdist_wheel" not in sys.argv, "setuptools 18 required for wheels."
+    if sys.version_info[0:2] < (3, 0):
+        INSTALL_REQUIRES.append("configparser>=3.5.0")
+else:
+    EXTRAS_REQUIRE[":python_version<'3.0'"] = ["configparser>=3.5.0"]
 
 setup(
     name="twod",
@@ -53,11 +76,8 @@ setup(
 
     packages=find_packages(exclude=["docs", "tests*"]),
 
-    install_requires=[
-        'python-daemon==2.1.2',
-        'requests==2.18.4',
-        'configparser==3.5.0',
-    ],
+    install_requires=INSTALL_REQUIRES,
+    extras_require=EXTRAS_REQUIRE,
 
     package_data={},
 
