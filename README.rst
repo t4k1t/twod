@@ -5,15 +5,6 @@ twod
 ``twod`` is a daemon that updates your TwoDNS_ host IP entries.
 
 
-dependencies
-============
-
-- python (>=dev-lang/python-2.7)
-- python-daemon (>=dev-python/python-daemon-1.6)
-- lockfile (>=dev-python/lockfile-0.9.1)
-- requests (>=dev-python/requests-1.2.3)
-
-
 configuration
 =============
 
