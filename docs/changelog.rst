@@ -3,6 +3,11 @@
 Changelog
 =========
 
+0.5.1
+-----
+
+* Fix packaging issues. [`#8 <https://github.com/tablet-mode/twod/issues/8>`_]
+
 0.5.0
 -----
 
