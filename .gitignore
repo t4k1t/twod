@@ -14,3 +14,6 @@ _coverage
 
 # documentation
 docs/_build/*
+
+# other
+.envrc
