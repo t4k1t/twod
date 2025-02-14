@@ -2,6 +2,8 @@
 twod
 ====
 
+**NOTE: At the time of writing it's not possible to even register for a new TwoDNS account anymore. Since I haven't been using it for quite a while, and there are better alternatives around, twod won't be updated anymore.**
+
 ``twod`` is a daemon that updates your TwoDNS_ host IP entries.
 
 
